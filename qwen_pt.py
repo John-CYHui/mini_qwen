@@ -14,11 +14,11 @@ from transformers import (
 from utils.utils import find_files,tokenize_dataset
 
 TRUNK_SIZE = 512
-TMP_PATH = "/archive/share/cql/aaa/tmp"
+TMP_PATH = "archive/share/cql/aaa/tmp"
 DATA_PATH = "data/pt"
 OUTPUT_PATH = "results/pt"
 CONFIG_PATH = "models/Qwen2.5-0.5B"
-WANDB_LOG = True
+WANDB_LOG = False
 os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'max_split_size_mb:64'
 
 output_path = OUTPUT_PATH
@@ -47,7 +47,7 @@ if not os.path.isdir(tokenized_datapath):
         batched=True,
         batch_size=5000,
         remove_columns=dataset.column_names,
-        num_proc=32,
+        num_proc=8,
     )
     train_dataset.save_to_disk(tokenized_datapath)
     
@@ -62,14 +62,14 @@ training_args = TrainingArguments(
     warmup_ratio=0.1,
     lr_scheduler_type="cosine",
     num_train_epochs=3,
-    per_device_train_batch_size=24,
+    per_device_train_batch_size=12,
     gradient_accumulation_steps=16,
     save_steps=10_000, 
     save_total_limit=3,
     gradient_checkpointing=True,
     bf16=True,
     logging_steps=10,
-    report_to="wandb",
+    report_to=["tensorboard"],
 )
 
 if WANDB_LOG:
